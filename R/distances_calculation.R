@@ -1,10 +1,10 @@
 #' Distances between fuel layers
 #' @description This function calculates distances (and their heights) between fuel layers as the difference between consecutive gaps and fuel bases
 #' (the gap height always must be lower than the fuel base height).
-#' @usage get_distance (gap_cbh_metrics,gaps_perc2,verbose=TRUE)
+#' @usage get_distance (gap_cbh_metrics,gaps_perc,verbose=TRUE)
 #' @param gap_cbh_metrics data frame with gaps (distances) and fuel base heights (output of [get_gaps_fbhs()] function).
 #' An object of the class text.
-#' @param gaps_perc2 data frame with Leaf Area Density (LAD) percentiles for each height values (output of [calculate_gaps_perc2()] function).
+#' @param gaps_perc data frame with Leaf Area Density (LAD) percentiles for each height values (output of [calculate_gaps_perc()] function).
 #' An object of the class text.
 #' @param verbose Logical, indicating whether to display informational messages (default is TRUE).
 #' @return A data frame giving distances (and their heights) between fuel layers in meters.
@@ -32,10 +32,10 @@
 #' gap_cbh_metrics <- get_gaps_fbhs()
 #' LadderFuelsR::gap_cbh_metrics$treeID <- factor(LadderFuelsR::gap_cbh_metrics$treeID)
 #'
-#' # Before running this example, make sure to run calculate_gaps_perc2().
-#' LadderFuelsR::gaps_perc2$treeID <- factor(LadderFuelsR::gaps_perc2$treeID)
+#' # Before running this example, make sure to run calculate_gaps_perc().
+#' LadderFuelsR::gaps_perc$treeID <- factor(LadderFuelsR::gaps_perc$treeID)
 #'
-#' trees_name1 <- as.character(gaps_perc2$treeID)
+#' trees_name1 <- as.character(gaps_perc$treeID)
 #' trees_name2 <- factor(unique(trees_name1))
 #'
 #' metrics_distance_list <- list()
@@ -44,7 +44,7 @@
 #'
 #' # Filter data for each tree
 #' tree1 <- gap_cbh_metrics |> dplyr::filter(treeID == i)
-#' tree2 <- gaps_perc2 |> dplyr::filter(treeID == i)
+#' tree2 <- gaps_perc |> dplyr::filter(treeID == i)
 #' # Get distance metrics for each tree
 #' metrics_distance <- get_distance(tree1, tree2)
 #' metrics_distance_list[[i]] <- metrics_distance
@@ -66,16 +66,19 @@
 #' @importFrom ggplot2 aes geom_line geom_path geom_point geom_polygon geom_text geom_vline ggtitle coord_flip theme_bw
 #' theme element_text xlab ylab ggplot
 #' @seealso \code{\link{get_gaps_fbhs}}
-#' @seealso \code{\link{calculate_gaps_perc2}}
+#' @seealso \code{\link{calculate_gaps_perc}}
 #' @export
-get_distance <- function (gap_cbh_metrics,gaps_perc2, verbose = TRUE) {
+get_distance <- function (gap_cbh_metrics,gaps_perc, verbose = TRUE) {
 
-    gaps_perc2<-gaps_perc2
+    gaps_perc2<-gaps_perc
     df <- gap_cbh_metrics
 
     gaps_perc2$treeID <- factor(gaps_perc2$treeID)
     df$treeID <- factor(df$treeID)
 
+if (verbose) {
+    message("Unique treeIDs:", paste(unique(gaps_perc2$treeID), collapse = ", "))
+  }
     treeID<-factor(df$treeID)
 
     df <- df %>%
@@ -88,9 +91,6 @@ get_distance <- function (gap_cbh_metrics,gaps_perc2, verbose = TRUE) {
   # Select only numeric columns
   df1_numeric <- df1 %>% dplyr::select_if(is.numeric)
 
-  if (verbose) {
-    message("Unique treeIDs:", paste(unique(df1_numeric$treeID), collapse = ", "))
-  }
 
   # Assuming that columns starting with "gap" or "cbh" are the ones you want to keep
   columns_to_keep <- names(df1_numeric)[grepl("^gap\\d+$|^cbh\\d+$", names(df1_numeric))]
@@ -281,8 +281,8 @@ get_distance <- function (gap_cbh_metrics,gaps_perc2, verbose = TRUE) {
   # Find the last set of consecutive "gap" columns
 
   # Find columns that start with "gap" or "cbh"
-  gap_cols <- grep("^Hgap", colnames(kk_copy))
-  cbh_cols <- grep("^Hcbh", colnames(kk_copy))
+  gap_cols <- grep("^gap", colnames(kk_copy))
+  cbh_cols <- grep("^cbh", colnames(kk_copy))
 
   # Check the number of gap columns is greater than 1 and number of cbh columns equals to 1
   if(length(gap_cols) > 1 & length(cbh_cols) == 1 ) {
@@ -293,8 +293,8 @@ get_distance <- function (gap_cbh_metrics,gaps_perc2, verbose = TRUE) {
       col_names <- colnames(kk_copy)
 
       # Identify columns starting with "gap" and "cbh"
-      gap_cols <- grep("^Hgap", col_names)
-      cbh_cols <- grep("^Hcbh", col_names)
+      gap_cols <- grep("^gap", col_names)
+      cbh_cols <- grep("^cbh", col_names)
 
       # Determine the "gap" column sets based on the presence of a "cbh" column
       set_breaks <- c(0, cbh_cols, length(col_names) + 1)
@@ -672,8 +672,8 @@ get_distance <- function (gap_cbh_metrics,gaps_perc2, verbose = TRUE) {
 
   #### IF THERE ARE CONSECUTIVE GAPS AFTER CBH COLUMNS (ABOVE DISTANCES) #################
 
-  gap_cols <- grep("^Hgap", colnames(kk_copy))
-  cbh_cols <- grep("^Hcbh", colnames(kk_copy))
+  gap_cols <- grep("^gap", colnames(kk_copy))
+  cbh_cols <- grep("^cbh", colnames(kk_copy))
 
   # remove missing values in gap_cols or cbh_cols
   gap_cols <- gap_cols[!is.na(kk_copy[,gap_cols])]
@@ -689,8 +689,8 @@ get_distance <- function (gap_cbh_metrics,gaps_perc2, verbose = TRUE) {
     if (length(gap_cols) > 1 && any(diff(gap_cols) > 1)) {
 
       # Get the positions of 'gap' and 'cbh' columns
-      gap_positions <- grep("^Hgap", names(kk_copy))
-      cbh_positions <- grep("^Hcbh", names(kk_copy))
+      gap_positions <- grep("^gap", names(kk_copy))
+      cbh_positions <- grep("^cbh", names(kk_copy))
 
       # Find the last position of 'cbh' column
       last_cbh_position <- max(cbh_positions)
@@ -723,7 +723,7 @@ get_distance <- function (gap_cbh_metrics,gaps_perc2, verbose = TRUE) {
 
 
           # Get the column index of the column that starts with "gap"
-          gap_col1<- grep("^Hgap", colnames(Hdist5))
+          gap_col1<- grep("^gap", colnames(Hdist5))
 
           # Rename the column
           if (length(gap_col1) > 0) {
@@ -859,6 +859,27 @@ get_distance <- function (gap_cbh_metrics,gaps_perc2, verbose = TRUE) {
 
 distance_metrics <- cbind.data.frame(treeID1,treeID, kk_copy, distance_data,max_height)
 
+# Find columns with the highest suffix number for Hdist and dist
+Hdist_cols <- grep("^Hdist", colnames(distance_metrics), value=TRUE)
+last_Hdist_col <- Hdist_cols[length(Hdist_cols)]
+last_Hdist_values <- distance_metrics[, last_Hdist_col]
+
+dist_cols <- grep("^dist", colnames(distance_metrics), value=TRUE)
+last_dist_col <- dist_cols[length(dist_cols)]
+last_dist_values <- distance_metrics[, last_dist_col]
+
+cbh_cols <- grep("^cbh", colnames(distance_metrics), value=TRUE)
+last_cbh_col <- cbh_cols[length(cbh_cols)]
+last_cbh_values <- distance_metrics[, last_cbh_col]
+
+#print(Hdist_value)
+#print(last_cbh_values)
+
+if (!any(is.na(last_Hdist_values)) && !any(is.na(last_cbh_values)) && last_Hdist_values > last_cbh_values) {
+  # Replace the last dist and Hdist values with 0
+  distance_metrics[, last_dist_col] <- 0
+  distance_metrics[, last_Hdist_col] <- 0
+}
 
 return(distance_metrics)
 }
