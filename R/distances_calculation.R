@@ -172,7 +172,8 @@ if (verbose) {
 
 ####################################
 
-  if(length(gap_cols) >= 1 & length(cbh_cols) == 0 && (!exists("distance_data") || is.null(distance_data) || ncol(distance_data) == 0 && nrow(distance_data) == 0 || is.na(distance_data)))  {
+  if(length(gap_cols) >= 1 & length(cbh_cols) == 0 && (!exists("distance_data") || is.null(distance_data) || ncol(distance_data) == 0 && nrow(distance_data) == 0 ||
+                                                       all(is.na(distance_data))))  {
 
     # Identify the first and last indices of the consecutive "gap" columns
     first_gap_index <- min(gap_cols)
@@ -335,7 +336,7 @@ if (verbose) {
     Hdist4<-last_value
 
     # Add Hdist4 column to the data frame if it exists and is not empty
-    if (exists("Hdist4") && !is.null(Hdist4) && ncol(Hdist4) != 0 && nrow(Hdist4) != 0 && !is.na(Hdist4)) {
+    if (exists("Hdist4") && !is.null(Hdist4) && ncol(Hdist4) != 0 && nrow(Hdist4) != 0 && any(!is.na(Hdist4))) {
       distance_data3 <- cbind(distance_data3,Hdist4)
       colnames(distance_data3)<-c("dist", "Hdist")
     }
@@ -346,7 +347,7 @@ if (verbose) {
 
   if (!exists("distance_data")) {
     if (exists("distance_data1")) {
-      if(!is.null(distance_data1) || ncol(distance_data1) != 0 || nrow(distance_data1) != 0 || !is.na(distance_data1)) {
+      if(!is.null(distance_data1) || ncol(distance_data1) != 0 || nrow(distance_data1) != 0 || any(!is.na(distance_data1))) {
         if(!exists("distance_data2") || is.null(distance_data2) || any(is.na(distance_data2))) {
           if (!exists("distance_data3") || is.null(distance_data3) || any(is.na(distance_data3))) {
 
@@ -357,7 +358,7 @@ if (verbose) {
 
   if (!exists("distance_data")) {
     if (exists("distance_data2")) {
-      if(!is.null(distance_data2) || ncol(distance_data2) != 0 || nrow(distance_data2) != 0 || !is.na(distance_data2)) {
+      if(!is.null(distance_data2) || ncol(distance_data2) != 0 || nrow(distance_data2) != 0 || any(!is.na(distance_data2))) {
         if(!exists("distance_data1") || is.null(distance_data1) || any(is.na(distance_data1))) {
           if (!exists("distance_data3") || is.null(distance_data3) || any(is.na(distance_data3))) {
 
@@ -368,7 +369,7 @@ if (verbose) {
 
   if (!exists("distance_data")) {
     if (exists("distance_data3")) {
-      if(!is.null(distance_data3) || ncol(distance_data3) != 0 || nrow(distance_data3) != 0 || !is.na(distance_data3)) {
+      if(!is.null(distance_data3) || ncol(distance_data3) != 0 || nrow(distance_data3) != 0 || any(!is.na(distance_data3))) {
         if(!exists("distance_data1") || is.null(distance_data1) || any(is.na(distance_data1))) {
           if (!exists("distance_data2") || is.null(distance_data2) || any(is.na(distance_data2))) {
 
@@ -378,7 +379,7 @@ if (verbose) {
 
   if (!exists("distance_data")) {
     if (exists("distance_data1")) {
-      if(!is.null(distance_data1) || ncol(distance_data1) != 0 || nrow(distance_data1) != 0 || !is.na(distance_data1)) {
+      if(!is.null(distance_data1) || ncol(distance_data1) != 0 || nrow(distance_data1) != 0 || any(!is.na(distance_data1))) {
         if(exists("distance_data2")) {
           if(!is.null(distance_data2) || any(!is.na(distance_data2))) {
             if (!exists("distance_data3") || is.null(distance_data3) || any(is.na(distance_data3))) {
@@ -389,7 +390,7 @@ if (verbose) {
 
   if (!exists("distance_data")) {
     if (exists("distance_data1")) {
-      if(!is.null(distance_data1) || ncol(distance_data1) != 0 || nrow(distance_data1) != 0 || !is.na(distance_data1)) {
+      if(!is.null(distance_data1) || ncol(distance_data1) != 0 || nrow(distance_data1) != 0 || any(!is.na(distance_data1))) {
         if(exists("distance_data3")) {
           if(!is.null(distance_data3) || any(!is.na(distance_data3))) {
             if (!exists("distance_data2") || is.null(distance_data2) || any(is.na(distance_data2))) {
@@ -407,10 +408,11 @@ if (verbose) {
     distance_data <- data.frame()
   }
 
-  if ((is.null(distance_data) || ncol(distance_data) == 0 || nrow(distance_data) == 0 || is.na(distance_data)) &&
-      (exists("distance_data1") && !is.null(distance_data1) && ncol(distance_data1) != 0 && nrow(distance_data1) != 0 && !is.na(distance_data1)) &&
-      (exists("distance_data2") && !is.null(distance_data2) && ncol(distance_data2) != 0 && nrow(distance_data2) != 0 && !is.na(distance_data2))) {
+    condition1 <- is.null(distance_data) || ncol(distance_data) == 0 || nrow(distance_data) == 0 || any(is.na(distance_data))
+    condition2 <- exists("distance_data1") && !is.null(distance_data1) && ncol(distance_data1) != 0 && nrow(distance_data1) != 0 && any(!is.na(distance_data1))
+    condition3 <- exists("distance_data2") && !is.null(distance_data2) && ncol(distance_data2) != 0 && nrow(distance_data2) != 0 && any(!is.na(distance_data2))
 
+    if (condition1 && condition2 && condition3) {
 
     # Get the column names with 'Hdist_' prefix from both data frames
     Hdist_cols_data1 <- grep("^Hdist", names(distance_data1), value = TRUE)
@@ -433,9 +435,12 @@ if (verbose) {
       distance_data <- data.frame()
     }
 
-    if ((is.null(distance_data) || ncol(distance_data) == 0 || nrow(distance_data) == 0 || is.na(distance_data)) &&
-        (exists("distance_data1") && !is.null(distance_data1) && ncol(distance_data1) != 0 && nrow(distance_data1) != 0 && !is.na(distance_data1)) &&
-        (exists("distance_data2") && !is.null(distance_data2) && ncol(distance_data2) != 0 && nrow(distance_data2) != 0 && !is.na(distance_data2))) {
+    condition1 <- is.null(distance_data) || ncol(distance_data) == 0 || nrow(distance_data) == 0 || any(is.na(distance_data))
+    condition2 <- exists("distance_data1") && !is.null(distance_data1) && ncol(distance_data1) != 0 && nrow(distance_data1) != 0 && any(!is.na(distance_data1))
+    condition3 <- exists("distance_data2") && !is.null(distance_data2) && ncol(distance_data2) != 0 && nrow(distance_data2) != 0 && any(!is.na(distance_data2))
+
+    if (condition1 && condition2 && condition3) {
+
 
       # Get the column names with 'Hdist_' prefix from both data frames
       Hdist_cols_data1 <- grep("^Hdist", names(distance_data1), value = TRUE)
@@ -485,9 +490,11 @@ if (verbose) {
     distance_data <- data.frame()
   }
 
-  if ((is.null(distance_data) || ncol(distance_data) == 0 || nrow(distance_data) == 0 || is.na(distance_data)) &&
-      (exists("distance_data1") && !is.null(distance_data1) && ncol(distance_data1) != 0 && nrow(distance_data1) != 0 && !is.na(distance_data1)) &&
-      (exists("distance_data3") && !is.null(distance_data3) && ncol(distance_data3) != 0 && nrow(distance_data3) != 0 && !is.na(distance_data3))) {
+    condition1 <- is.null(distance_data) || ncol(distance_data) == 0 || nrow(distance_data) == 0 || any(is.na(distance_data))
+    condition2 <- exists("distance_data1") && !is.null(distance_data1) && ncol(distance_data1) != 0 && nrow(distance_data1) != 0 && any(!is.na(distance_data1))
+    condition3 <- exists("distance_data3") && !is.null(distance_data3) && ncol(distance_data3) != 0 && nrow(distance_data3) != 0 && any(!is.na(distance_data3))
+
+    if (condition1 && condition2 && condition3) {
 
 
     # Get the column names with 'Hdist_' prefix from both data frames
@@ -511,9 +518,12 @@ if (verbose) {
       distance_data <- data.frame()
     }
 
-    if ((is.null(distance_data) || ncol(distance_data) == 0 || nrow(distance_data) == 0 || is.na(distance_data)) &&
-        (exists("distance_data1") && !is.null(distance_data1) && ncol(distance_data1) != 0 && nrow(distance_data1) != 0 && !is.na(distance_data1)) &&
-        (exists("distance_data3") && !is.null(distance_data3) && ncol(distance_data3) != 0 && nrow(distance_data3) != 0 && !is.na(distance_data3))) {
+
+      condition1 <- is.null(distance_data) || ncol(distance_data) == 0 || nrow(distance_data) == 0 || any(is.na(distance_data))
+      condition2 <- exists("distance_data1") && !is.null(distance_data1) && ncol(distance_data1) != 0 && nrow(distance_data1) != 0 && any(!is.na(distance_data1))
+      condition3 <- exists("distance_data3") && !is.null(distance_data3) && ncol(distance_data3) != 0 && nrow(distance_data3) != 0 && any(!is.na(distance_data3))
+
+      if (condition1 && condition2 && condition3) {
 
       # Get the column names with 'Hdist_' prefix from both data frames
       Hdist_cols_data1 <- grep("^Hdist", names(distance_data1), value = TRUE)
@@ -558,13 +568,13 @@ if (verbose) {
   if (exists("distance_data") && nrow(distance_data) != 0 && any(!is.na(distance_data))) {
 
     if (exists("distance_data1")) {
-      if (!is.na(distance_data1) && length(distance_data1) > 0 && any(!is.na(distance_data1))) {
+      if (length(distance_data1) > 0 && any(!is.na(distance_data1))) {
 
         if (exists("distance_data2")) {
-          if (!is.na(distance_data2) && length(distance_data2) > 0 && any(!is.na(distance_data2))) {
+          if (length(distance_data2) > 0 && any(!is.na(distance_data2))) {
 
             if (exists("distance_data3")) {
-              if (!is.na(distance_data3) && length(distance_data3) > 0 && any(!is.na(distance_data3))) {
+              if (length(distance_data3) > 0 && any(!is.na(distance_data3))) {
 
                 if(ncol(distance_data)==1) {
 
@@ -584,10 +594,10 @@ if (verbose) {
     if (!exists("distance_data1")) {
 
       if (exists("distance_data2")) {
-        if (!is.na(distance_data2) && length(distance_data2) > 0 && any(!is.na(distance_data2))) {
+        if (length(distance_data2) > 0 && any(!is.na(distance_data2))) {
 
           if (exists("distance_data3")) {
-            if (!is.na(distance_data3) && length(distance_data3) > 0 && any(!is.na(distance_data3))) {
+            if (length(distance_data3) > 0 && any(!is.na(distance_data3))) {
 
               if(ncol(distance_data)==1) {
 
@@ -608,7 +618,7 @@ if (verbose) {
 
       if (!exists("distance_data2")) {
 
-        if (exists("distance_data3") && !is.na(distance_data3) && length(distance_data3) > 0 && any(!is.na(distance_data3))) {
+        if (exists("distance_data3") && length(distance_data3) > 0 && any(!is.na(distance_data3))) {
 
           if(ncol(distance_data)==1) {
 
@@ -623,8 +633,8 @@ if (verbose) {
 
   if ((exists("distance_data") && nrow(distance_data) != 0 && any(!is.na(distance_data)))) {
 
-    if  (exists("distance_data1") && !is.na(distance_data1) && length(distance_data1) != 0 && any(!is.na(distance_data1))) {
-      if (exists("distance_data2") && !is.na(distance_data2) && length(distance_data2) != 0 && any(!is.na(distance_data2))) {
+    if  (exists("distance_data1") && length(distance_data1) != 0 && any(!is.na(distance_data1))) {
+      if (exists("distance_data2") && length(distance_data2) != 0 && any(!is.na(distance_data2))) {
         if (!exists("distance_data3")) {
 
           if(ncol(distance_data)==1) {
@@ -642,9 +652,9 @@ if (verbose) {
 
   if ((exists("distance_data") && nrow(distance_data) != 0 && any(!is.na(distance_data)))) {
 
-    if (exists("distance_data1") && is.na(distance_data1) && length(distance_data1) == 0 && any(is.na(distance_data1))) {
+    if (exists("distance_data1") && length(distance_data1) == 0 && any(is.na(distance_data1))) {
       if (!exists("distance_data2")) {
-        if (exists("distance_data3") && !is.na(distance_data3) && length(distance_data3) != 0 && any(!is.na(distance_data3))) {
+        if (exists("distance_data3") && length(distance_data3) != 0 && any(!is.na(distance_data3))) {
 
           if(ncol(distance_data)==1) {
 
@@ -659,7 +669,8 @@ if (verbose) {
         }}}}
 
 
-  if (length(gap_cols) > 1 && length(cbh_cols) > 1 && ((exists("distance_data") || !is.null(distance_data) || (ncol(distance_data) != 0 && nrow(distance_data) != 0)) || !is.na(distance_data))) {
+  if (length(gap_cols) > 1 && length(cbh_cols) > 1 && ((exists("distance_data") || !is.null(distance_data) || (ncol(distance_data) != 0 &&
+  nrow(distance_data) != 0)) || any(!is.na(distance_data)))) {
 
     height<-gaps_perc2$height
     percent2a <- gaps_perc2 %>% dplyr::filter(height < min(kk_copy[, cbh_cols]))
@@ -684,7 +695,7 @@ if (verbose) {
   if (length(gap_cols) > 1 && length(cbh_cols) > 1 &&
       ((exists("distance_data") || !is.null(distance_data) ||
         (ncol(distance_data) != 0 && nrow(distance_data) != 0)) ||
-       !is.na(distance_data))) {
+       any(!is.na(distance_data)))) {
 
     if (length(gap_cols) > 1 && any(diff(gap_cols) > 1)) {
 
@@ -741,8 +752,11 @@ if (verbose) {
 
 
 
-  if ((exists("distance_data") && !is.null(distance_data) && ncol(distance_data) != 0 && nrow(distance_data) != 0 && !is.na(distance_data)) &&
-      (exists("distance_data4") && !is.null(distance_data4) && ncol(distance_data4) != 0 && nrow(distance_data4) != 0 && !is.na(distance_data4))) {
+    condition1 <- exists("distance_data") && !is.null(distance_data) && ncol(distance_data) != 0 && nrow(distance_data) != 0 && any(!is.na(distance_data))
+    condition2 <- exists("distance_data4") && !is.null(distance_data4) && ncol(distance_data4) != 0 && nrow(distance_data4) != 0 && any(!is.na(distance_data4))
+
+    if (condition1 && condition2) {
+
 
     # Get the column names with 'Hdist_' prefix from both data frames
     Hdist_cols_data <- grep("^Hdist", names(distance_data), value = TRUE)
@@ -766,14 +780,15 @@ if (verbose) {
   }
 
 
-  if(exists("distance_data") && !is.null(distance_data) && ncol(distance_data) != 0 && nrow(distance_data) != 0 && !is.na(distance_data)
+  if(exists("distance_data") && !is.null(distance_data) && ncol(distance_data) != 0 && nrow(distance_data) != 0 &&  any(!is.na(distance_data))
      && all(distance_data==0)) {
 
     distance_data <-data.frame(c(NA))
     names(distance_data)= "dist_0"
   }
 
-  if (length(gap_cols) > 1 && length(cbh_cols) > 1 && ((!exists("distance_data") || is.null(distance_data) || (ncol(distance_data) == 0 && nrow(distance_data) == 0)) || is.na(distance_data))) {
+  if (length(gap_cols) > 1 && length(cbh_cols) > 1 && ((!exists("distance_data") || is.null(distance_data) || (ncol(distance_data) == 0 && nrow(distance_data) == 0)) ||
+                                                       all(is.na(distance_data)))) {
 
     diff2 <- max(kk_copy[, gap_cols]) - min(kk_copy[, gap_cols])
     Hdist6<-max(kk_copy[, gap_cols])

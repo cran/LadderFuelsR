@@ -1,4 +1,4 @@
-cab6c956da283ddbefdf9e003def4e30 *DESCRIPTION
+d7b61ee6975ca4af16c79457afa641d1 *DESCRIPTION
 3d680d55ed335e626e78393998db2039 *NAMESPACE
 2d6d0c09745cee33c2d46220509aa5b7 *R/calculate_gaps_perc.R
 195bcc6be355e9d2fd0374b7124f7f44 *R/cbh_metrics.R
@@ -6,8 +6,8 @@ dbd830b4d6527a3983f13e8b29b2faac *R/corrected_base_heights.R
 a4b01a6b186d460bc1cb4253ab4f8435 *R/corrected_depth.R
 f82c02c0cf5882af2fb6ae430710d31b *R/corrected_distances.R
 da82562ebc7ce1aa387e43d002e151ba *R/cummLAD_breaks_metrics.R
-24b0061ed29ca7a540e6cfd0b48e59c8 *R/depths_calculation.R
-900030e36915236908d5101e82e56526 *R/distances_calculation.R
+42c9e81ded96ed7c927a373bc25ccf56 *R/depths_calculation.R
+9c7feadbcdb2107136bd39f882823b51 *R/distances_calculation.R
 63da1c43395cc15c78d3a596160a5be2 *R/gap_fbh.R
 7bcd7bfd01565f255da915a6b7822c03 *R/maxlad_metrics_25perc.R
 cacc185e5b229919c51e2627ffb32b81 *R/plot_cbh_bpoint.R
@@ -19,7 +19,7 @@ bebc48ebdb3ab4d2dd177e7e22ff47c0 *R/plot_gaps_fbhs.R
 8e86dff349eb8dd4ec097ed883c0ef80 *R/remove_no_flayer_noconsec.R
 caa7c4a9cac3c615c1ee06542a71661b *R/renamed0_df.R
 27e69714c4717a1947a75e41c83c8174 *R/renamed_df.R
-204747f34c5c703f903bc36aa182e5e2 *README.md
+34f65a2c06ee6509e7f9fe0b7cc520c9 *README.md
 a11d2259f5b586a65be1391d8e01840d *README/LadderFuels_image.png
 3bacb3fbe73ec20344aa0d94b04ce7a9 *README/fig1.png
 79b0b0a9f861f85f0d553e8efb768895 *README/fig13_1.png
