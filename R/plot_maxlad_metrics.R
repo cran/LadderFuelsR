@@ -1,19 +1,19 @@
-#' Plots of fuel layers with LAD percentage greater than a specified threshold
+#' Plots of fuel layers with LAD percentage > 10
 #' @description
-#' This function plots effective fuel layers separated by effective distances (> 1 m).
+#' This function plots fuel layers with LAD percentage greater than 10.
 #' @usage
-#' get_plots_effective(LAD_profiles, effective_LAD)
+#' get_plots_effective(LAD_profiles, effective_LAD, min_height = 1.5)
 #' @param LAD_profiles
 #' Original tree Leaf Area Density (LAD) profile (output of [lad.profile()] function in the \emph{leafR} package).
 #' An object of the class text.
 #' @param effective_LAD
-#' Tree metrics with gaps (distances), fuel base heights, and depths of fuel layers with LAD percentage greater than a specified threshold
+#' Tree metrics with gaps (distances), fuel base heights, and depths of fuel layers with LAD percentage greater than 10
 #' (output of [get_layers_lad()] function).
 #' An object of the class text.
+#' @param min_height Numeric value for the actual minimum base height (in meters).
 #' @return
-#' A plot drawing the effective fuel layers with LAD percentage greater than a specified threshold.
-#' @author
-#' Olga Viedma, Carlos Silva and JM Moreno
+#' A plot drawing fuel layers with LAD percentage greater than 10.
+#' @author Olga Viedma, Carlos Silva, JM Moreno and A.T. Hudak
 #'
 #' @examples
 #' library(ggplot2)
@@ -33,31 +33,60 @@
 #' trees_name2 <- factor(unique(trees_name1))
 #'
 #' # Generate plots for fuels LAD metrics
-#' plots_effective_metrics <- get_plots_effective(LAD_profiles, effective_LAD)
+#' plots_trees_LAD <- get_plots_cbh_LAD(LAD_profiles, effective_LAD, min_height = 1.5)
 #' }
 #' @importFrom dplyr select_if group_by summarise summarize mutate arrange rename rename_with filter slice slice_tail ungroup distinct
-#' across matches row_number all_of vars
+#' across matches row_number all_of vars bind_cols case_when left_join mutate if_else lag n_distinct
 #' @importFrom segmented segmented seg.control
 #' @importFrom magrittr %>%
 #' @importFrom stats ave dist lm na.omit predict quantile setNames smooth.spline
 #' @importFrom utils tail
 #' @importFrom tidyselect starts_with everything one_of
-#' @importFrom stringr str_extract str_match str_detect
+#' @importFrom stringr str_extract str_match str_detect str_remove_all
 #' @importFrom tibble tibble
-#' @importFrom tidyr pivot_longer fill
+#' @importFrom tidyr pivot_longer fill pivot_wider replace_na
 #' @importFrom gdata startsWith
 #' @importFrom ggplot2 aes geom_line geom_path geom_point geom_polygon geom_text geom_vline ggtitle coord_flip theme_bw
-#' theme element_text xlab ylab ggplot
+#' theme element_text xlab ylab ggplot xlim
 #' @seealso \code{\link{get_layers_lad}}
 #' @export
-get_plots_effective <- function (LAD_profiles, effective_LAD) {
+# Function to generate plots
+get_plots_effective <- function (LAD_profiles, effective_LAD, min_height = 1.5) {
 
   df_orig <- LAD_profiles
 
+  if(min_height==0){
+    min_height <-0.5
+
+    # Ensure the column starts with a negative value
+    if (df_orig$height[1] < min_height) {
+      # Calculate the shift value
+      shift_value <- abs(df_orig$height[1])
+
+      # Adjust the column to start from 0
+      df_orig$height <- df_orig$height + shift_value
+    }
+
+
+    # Ensure the column starts with a negative value
+    if (df_orig$height[1] > min_height) {
+      # Calculate the shift value
+      shift_value1 <- abs(df_orig$height[1])
+
+      # Adjust the column to start from 0
+      df_orig$height <- df_orig$height - shift_value1
+    }
+  }
+
+
+  df_effective  <- effective_LAD
+  df_effective <- df_effective[, colSums(!is.na(df_effective)) > 0]
+
+  df_effective$treeID <- factor(df_effective$treeID)
   df_orig$treeID <- factor(df_orig$treeID)
   trees_name1a <- as.character(df_orig$treeID)
   trees_name3 <- factor(unique(trees_name1a))
-  treeID<-df_orig$treeID
+  treeID <- df_orig$treeID
 
   plot_with_annotations_list <- list()
 
@@ -71,7 +100,7 @@ get_plots_effective <- function (LAD_profiles, effective_LAD) {
     height <- tree_data$height
     lad <- tree_data$lad
 
-    df_effective1 <- effective_LAD %>% dplyr::filter(treeID == i)
+    df_effective1 <- df_effective %>% dplyr::filter(treeID == i)
 
     CBH_1 <- round(as.numeric(as.character(df_effective1$Hcbh1)), 1)
     CBH_2 <- round(as.numeric(as.character(df_effective1$Hcbh2)), 1)
@@ -87,17 +116,18 @@ get_plots_effective <- function (LAD_profiles, effective_LAD) {
     depth_5 <- as.numeric(as.character(df_effective1$Hdptf5))
     depth_6 <- as.numeric(as.character(df_effective1$Hdptf6))
 
-
     min_y <- min(tree_data$lad, na.rm = TRUE)
     max_y <- max(tree_data$lad, na.rm = TRUE)
 
-    x<-tree_data$height
-    y<-tree_data$lad
+    x <- tree_data$height
+    y <- tree_data$lad
 
     tryCatch({
       bp2 <- ggplot(tree_data, aes(x = height)) +
         geom_line(aes(y = lad), color = "black", linewidth = 0.5) +
-        geom_point(data = tree_data, aes(x = height, y = lad), color = "black", size = 1.5)
+        geom_point(data = tree_data, aes(x = height, y = lad), color = "black", size = 1.5) +
+        xlim(min_height, max(tree_data$height, na.rm = TRUE))  # Set x-axis limits
+
 
       if (!is.na(min_y) && !is.na(max_y)) {
 
@@ -119,12 +149,10 @@ get_plots_effective <- function (LAD_profiles, effective_LAD) {
             } }
         }, error = function(e) {})
 
-
         tryCatch({
 
           if (!any(is.na(CBH_2)) && !any(is.na(depth_2))) {
             if (CBH_2 != depth_2) {
-
               polygon_data_2 <- data.frame(x = c(CBH_2, CBH_2, depth_2, depth_2),
                                            y = c(min_y, max_y, max_y, min_y))
               bp2 <- bp2 +
@@ -140,12 +168,10 @@ get_plots_effective <- function (LAD_profiles, effective_LAD) {
 
         }, error = function(e) {})
 
-
         tryCatch({
 
           if (!any(is.na(CBH_3)) && !any(is.na(depth_3))) {
             if (CBH_3 != depth_3) {
-
               polygon_data_3 <- data.frame(x = c(CBH_3, CBH_3, depth_3, depth_3),
                                            y = c(min_y, max_y, max_y, min_y))
               bp2 <- bp2 +
@@ -160,12 +186,10 @@ get_plots_effective <- function (LAD_profiles, effective_LAD) {
             }}
         }, error = function(e) {})
 
-
         tryCatch({
 
           if (!any(is.na(CBH_4)) && !any(is.na(depth_4))) {
             if (CBH_4 != depth_4) {
-
               polygon_data_4 <- data.frame(x = c(CBH_4, CBH_4, depth_4, depth_4),
                                            y = c(min_y, max_y, max_y, min_y))
               bp2 <- bp2 +
@@ -180,12 +204,10 @@ get_plots_effective <- function (LAD_profiles, effective_LAD) {
             }}
         }, error = function(e) {})
 
-
         tryCatch({
 
           if (!any(is.na(CBH_5)) && !any(is.na(depth_5))) {
             if (CBH_5 != depth_5) {
-
               polygon_data_5 <- data.frame(x = c(CBH_5, CBH_5, depth_5, depth_5),
                                            y = c(min_y, max_y, max_y, min_y))
               bp2 <- bp2 +
@@ -201,12 +223,10 @@ get_plots_effective <- function (LAD_profiles, effective_LAD) {
 
         }, error = function(e) {})
 
-
         tryCatch({
 
           if (!any(is.na(CBH_6)) && !any(is.na(depth_6))) {
             if (CBH_6 != depth_6) {
-
               polygon_data_6 <- data.frame(x = c(CBH_6, CBH_6, depth_6, depth_6),
                                            y = c(min_y, max_y, max_y, min_y))
               bp2 <- bp2 +
@@ -219,6 +239,7 @@ get_plots_effective <- function (LAD_profiles, effective_LAD) {
                 geom_path(data = line_data_6,
                           aes(x = x, y = y), color = "dark green", size = 1, linetype = "solid")
             }}
+
         }, error = function(e) {})
 
         bp2 <- bp2 +
@@ -270,7 +291,6 @@ get_plots_effective <- function (LAD_profiles, effective_LAD) {
         Depth5_label<- paste0("Depth ="," ",depth_5,"m")
         CBH6_label<- paste0("CBH ="," ",CBH_6,"m")
         Depth6_label<- paste0("Depth ="," ",depth_6,"m")
-
 
         bp2_annotations <- bp2
 
@@ -375,18 +395,15 @@ get_plots_effective <- function (LAD_profiles, effective_LAD) {
 
         }
 
-
-        plot_with_annotations_list[[i]] <- bp2_annotations  # Store plot with annotations separately
-        #print(paste("Plot for tree ", i, " created successfully"))
       }
 
+      plot_with_annotations_list[[i]] <- bp2_annotations
+
     }, error = function(e) {
-      #print(paste("Error occurred for tree:", i))
-      #print(e)
+      message(paste("Error occurred while processing treeID", i, ":", e$message))
     })
   }
 
-  return(plot_with_annotations_list)  # Changed from plot_with_annotations_list to plot_list
-
+  return(plot_with_annotations_list)
 }
 
