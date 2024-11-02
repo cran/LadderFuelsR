@@ -2,7 +2,7 @@ Package: LadderFuelsR
 Type: Package
 Title: Automated Tool for Vertical Fuel Continuity Analysis using
         Airborne Laser Scanning Data
-Version: 0.0.6
+Version: 0.0.7
 Authors@R: c(person("Olga", "Viedma", email = "olga.viedma@uclm.es", role = c("aut", "cph", "cre")),
               person("Carlos Alberto", "Silva", email = "c.silva@ufl.edu", role = c("aut", "cph")),
               person("Jose Manuel", "Moreno", email = "JoseM.Moreno@uclm.es", role = c("aut", "cph")),
@@ -13,7 +13,7 @@ License: GPL-3
 Encoding: UTF-8
 Imports: dplyr, gdata, ggplot2, magrittr, segmented, stringr, tidyr,
         tibble, tidyselect
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Collate: 'calculate_gaps_perc.R' 'gap_fbh.R' 'distances_calculation.R'
         'depths_calculation.R' 'corrected_base_heights.R'
         'corrected_depth.R' 'corrected_distances.R'
@@ -26,11 +26,11 @@ BugReports: https://github.com/olgaviedma/LadderFuelsR/issues
 Suggests: testthat (>= 3.0.0)
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2024-07-20 06:35:40 UTC; Olga.Viedma
+Packaged: 2024-11-02 09:02:25 UTC; Olga.Viedma
 Author: Olga Viedma [aut, cph, cre],
   Carlos Alberto Silva [aut, cph],
   Jose Manuel Moreno [aut, cph],
   Andrew T. Hudak [aut, cph]
 Maintainer: Olga Viedma <olga.viedma@uclm.es>
 Repository: CRAN
-Date/Publication: 2024-07-20 06:50:02 UTC
+Date/Publication: 2024-11-02 09:20:02 UTC

@@ -1,12 +1,12 @@
 ![](https://github.com/olgaviedma/LadderfuelsR/blob/master/Readme/LadderFuels_image.png)<br/>
 
-[![CRAN](https://www.r-pkg.org/badges/version/LadderFuelsR)](https://cran.r-project.org/package=LadderFuelsR) ![Github](https://img.shields.io/badge/Github-0.0.1-green.svg) ![licence](https://img.shields.io/badge/Licence-GPL--3-blue.svg) ![Downloads](https://cranlogs.r-pkg.org/badges/grand-total/LadderFuelsR)
+[![CRAN](https://www.r-pkg.org/badges/version/LadderFuelsR)](https://CRAN.R-project.org/package=LadderFuelsR) ![Github](https://img.shields.io/badge/Github-0.0.1-green.svg) ![licence](https://img.shields.io/badge/Licence-GPL--3-blue.svg) ![Downloads](https://cranlogs.r-pkg.org/badges/grand-total/LadderFuelsR)
 
 **LadderFuelsR: An R Package for vertical fuel continuity analysis using Airborne Laser Scanning data**
 
 Authors: Olga Viedma, Carlos Silva, JM Moreno and A.T. Hudak
 
-Automated tool for vertical fuel continuity analysis using Airborne Laser Scanning data that can be applied on multiple tree species and for large-scale studies.The workflow consisted of 1) calculating the Leaf Area Density (LAD) profiles of each segmented tree; 2) identifying gaps and fuel layers; 3) estimating the distance between fuel layers; and 4) retrieving the fuel layers base height (FBH) and depth. Additionally, other functions recalculate previous metrics after considering distances greater than certain threshold and calculate the CBH based on three criteria: maximum LAD, and the largest- and the last-distance. Moreover, the package calculates: i) the percentage of LAD comprised in each fuel layer and remove fuel layers below a specified threshold (default 10 % LAD) recalculating the distances among the reminder ones. On the other hand, when the LAD profiles showed only one fuel layer with CBH at the minimum base height, it identifies the CBH performing a segmented linear regression (breaking point) on the cumulative sum of LAD as a function of height. Finally, a collection of plotting functions is developed to represent all previous metrics.
+Automated tool for vertical fuel continuity analysis using Airborne Laser Scanning data that can be applied on multiple tree species and for large-scale studies.The workflow consisted of 1) calculating the Leaf Area Density (LAD) profiles of each segmented tree; 2) identifying gaps and fuel layers; 3) estimating the distance between fuel layers; and 4) retrieving the fuel layers base height (FBH) and depth. Additionally, other functions recalculate previous metrics after considering distances greater than certain threshold and calculate the CBH based on three criteria: maximum LAD, and the largest- and the last-distance. Moreover, the package calculates: i) the percentage of LAD comprised in each fuel layer and remove fuel layers below a specified threshold (default 10 % LAD) recalculating the distances among the reminder ones. On the other hand, when the LAD profiles showed only one fuel layer with CBH at the minimum base height, it identifies the CBH performing a segmented linear regression (breaking point) on the cumulative sum of LAD as a function of height. Finally, a collection of plotting functions is developed to represent all previous metrics.This is an updated version.
 
 # Getting Started
 
@@ -936,7 +936,7 @@ Please report any issue regarding the LadderFuelsR package to Dr. Olga Viedma ([
 
 # Citing LadderFuelsR
 
-Viedma,O.;Silva, C; Moreno, JM & Hudak, AT: LadderFuelsR: An R Package for vertical fuel continuity analysis using LiDAR data.version 0.0.1, accessed on November. 22 2023, available at: <https://CRAN.R-project.org/package=LadderFuelsR>
+Viedma,O.;Silva, C; Moreno, JM & Hudak, AT: LadderFuelsR: An R Package for vertical fuel continuity analysis using LiDAR data.version 0.0.7, accessed on november 2024, available at: <https://CRAN.R-project.org/package=LadderFuelsR>
 
 # Disclaimer
 

@@ -1,6 +1,8 @@
+# Suppress global variable warnings for NSE columns
+utils::globalVariables(c("height", ".data", "V1"))
 #' Gaps and Fuel layers Base Height (FBH)
 #' @description This function calculates gaps and fuel layers base height (FBH) as the difference in percentiles between consecutive LAD values along the vertical tree profile (VTP).
-#' Negative differences are linked to gaps and positive differences to fuel base height.
+#' Negative differences are linked to gaps and positive differences to fuel base height.It has been updated for reordering input columns.
 #' @usage get_gaps_fbhs (LAD_profiles, step=1, min_height=1.5,
 #' perc_gap= 25, perc_base= 25, verbose=TRUE)
 #' @param LAD_profiles original tree Leaf Area Density (LAD) profile (output of [lad.profile()] function in the \emph{leafR} package.
@@ -69,7 +71,7 @@
 #' } else {
 #' gap_cbh_metrics <- metrics_all_percentil
 #' }
-#' @importFrom dplyr select_if group_by summarise summarize mutate arrange rename rename_with filter slice slice_tail ungroup distinct
+#' @importFrom dplyr bind_rows select select_if group_by summarise summarize mutate arrange rename rename_with filter slice slice_tail ungroup distinct
 #' across matches row_number all_of vars bind_cols case_when left_join mutate if_else lag n_distinct
 #' @importFrom segmented segmented seg.control
 #' @importFrom magrittr %>%
@@ -89,6 +91,20 @@ get_gaps_fbhs<- function (LAD_profiles, step=1,
                           verbose=TRUE) {
 
   df <- LAD_profiles
+
+  # check required columns exist in data and stop if not
+  nms_df <- sort(names(df))
+  nms_needed <- sort(c("treeID", "height", "lad"))
+  nms_miss <- nms_needed[!nms_needed %in% nms_df]
+  if(length(nms_miss)>0){
+    stop(paste(
+      "Columns not found in data. Supply missing columns:"
+      , paste(nms_miss, collapse = ", ")
+    ))
+  }
+
+  # reorder the columns so that it doesn't matter how the input data is structured
+  df <- df %>% dplyr::relocate(height, lad, treeID)
 
 
   if(min_height==0){
@@ -462,39 +478,30 @@ crown_lad <- data.frame(merged_crown2[2,])
 
    #######################################
    #######################################
-
-   # Check if gaps6 exists and has data
-   if (!is.null(gaps6) && nrow(gaps6) > 0) {
-     gaps_height_t <- gaps6[1,] %>%
-       as.data.frame() %>%
-       dplyr::mutate_all(as.numeric) %>%
-       t() %>%
-       as.data.frame() %>%
-       dplyr::mutate(type = "gap")
+   # Check if gaps5m exists and has data
+   if (!is.null(gaps5m) && nrow(gaps5m) > 0) {
+     gaps_height_t <- gaps5m %>%
+       dplyr::select(height) %>%
+       dplyr::mutate(type = "gap") %>%
+       dplyr::rename(V1 = .data$height)
    } else {
      gaps_height_t <- tibble(V1 = NA, type = "gap")
    }
 
-
-   # Check if crown4 exists and contains data
-   if (!is.null(crown4) && nrow(crown4) > 0) {
-     crown_height_t <- crown4[1,] %>%
-       as.data.frame() %>%
-       dplyr::mutate_all(as.numeric) %>%
-       t() %>%
-       as.data.frame() %>%
-       dplyr::mutate(type = "cbh")
+   # Check if crown3b exists and contains data
+   if (!is.null(crown3b) && nrow(crown3b) > 0) {
+     crown_height_t <- crown3b %>%
+       dplyr::select(height) %>%
+       dplyr::mutate(type = "cbh") %>%
+       dplyr::rename(V1 = .data$height)
    } else {
      crown_height_t <- tibble(V1 = NA, type = "cbh")
    }
 
-   # Rename the column in gaps_height_t to match the column name in crown_height_t
-   colnames(gaps_height_t)[colnames(gaps_height_t) == "V1"] <- "height"
-   colnames(crown_height_t)[colnames(crown_height_t) == "V1"] <- "height"
-
-   # Now you can combine the data frames
-   combined_df <- rbind(gaps_height_t, crown_height_t)
-   combined_df_ord <- combined_df[order(combined_df$height), ]
+   # Combine the data frames and order by height
+   combined_df_ord <- bind_rows(gaps_height_t, crown_height_t) %>%
+     dplyr::rename(height = V1) %>%
+     arrange(height)
 
    combined_df_ord1<-na.omit(combined_df_ord)
 
@@ -527,6 +534,8 @@ names(max_height)="max_height"
     gap_cbh_metrics$treeID1 <- as.numeric(gap_cbh_metrics$treeID1)
     gap_cbh_metrics <- dplyr::arrange(gap_cbh_metrics, treeID1)
 
+    # make copy of treeID
+    df$treeID1 <- df$treeID
     treeID1<-unique(factor(df$treeID1))
 
     # Apply the code
